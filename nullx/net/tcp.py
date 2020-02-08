@@ -64,21 +64,25 @@ class TCPSocket:
         return collected
 
     def receive_until_key(self, key):
-        lastByte = 0
-        firstByte = True
-        streak = 0
-        def test(d):
-            if firstByte:
-                firstByte = False
-            else:
-                if key[streak] == d[0]:
-                    streak += 1
+        class Test:
+            def __init__(self):
+                self.lastByte = 0
+                self.firstByte = True
+                self.streak = 0
+            def test(self, d):
+                if self.firstByte:
+                    self.firstByte = False
                 else:
-                    streak = 0
-                if streak >= len(key):
-                    return False
-            lastByte = d[0]
-        return self.receive_while(test, buffer_size=1)
+                    if key[self.streak] == d[0]:
+                        self.streak += 1
+                    else:
+                        self.streak = 0
+                    if self.streak >= len(key):
+                        return False
+                self.lastByte = d[0]
+                return True
+        test = Test()
+        return self.receive_while(test.test, buffer_size=1)
 
     def send(self, data, encoding="utf-8"):
         if isinstance(data, str):
