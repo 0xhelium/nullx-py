@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "/Users/bill/Data/Apps/miniconda3/envs/ctf/bin/python",
+    "files.associations": {
+        "stdlib.h": "c",
+        "rand.h": "c"
+    }
+}

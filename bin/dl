@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import os.path
+from urllib import request
+from urllib.parse import urlparse
+import hashlib
+import click
+import supersonic as ss
+
+p = None
+def dlProgress(count, blockSize, totalSize):
+    global p
+    if p is None:
+        p = ss.sonic(total=totalSize # Total
+            , pdigits=1 # Number of digits of the percentage to show
+            , ascii=False # True: Ascii, False: Unicode
+            , bar_length=12 # Progress bar length
+        )
+    p.stat(count * blockSize)
+
+@click.command()
+@click.option("--name", default=None, help="output file name")
+@click.option("--md5", default=None, help="expected md5 checksum")
+@click.argument("url")
+def dl(name, md5, url):
+    global p
+    url_parsed = urlparse(url)
+    url_filename = os.path.basename(url_parsed.path)
+    driver_filename = url_filename
+    if name is not None:
+        driver_filename = name + os.path.splitext(url_filename)[1]
+    request.urlretrieve(url, filename=driver_filename, reporthook=dlProgress)
+    p.done()
+    if md5 is not None:
+        print("Checking MD5 of downloaded file")
+        hash_md5 = hashlib.md5()
+        with open(driver_filename, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        md5_checksum_of_dl = hash_md5.hexdigest()
+        if md5_checksum_of_dl == md5:
+            print("MD5 matched! Checksum: %s" % md5_checksum_of_dl)
+        else:
+            print("MD5 does not match. Corrupted download! Checksum: %s" % md5_checksum_of_dl)
+
+if __name__ == "__main__":
+    dl()

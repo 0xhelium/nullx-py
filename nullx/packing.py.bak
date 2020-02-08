@@ -1,0 +1,110 @@
+import struct
+
+FORMAT_SIZES = {
+    "b": 8,
+    "B": 8,
+    "h": 16,
+    "H": 16,
+    "l": 32,
+    "L": 32,
+    "q": 64,
+    "Q": 64
+}
+
+def bits_to_bytes(bits, f="b"):
+    if len(bits) < FORMAT_SIZES[f]:
+        bits = [0] * (FORMAT_SIZES[f] - len(bits)) + bits
+    b = bytearray()
+    for i in range(int(FORMAT_SIZES[f] / 8)):
+        tmp = 0
+        for j in range(8):
+            tmp = (tmp << 1) | bits[i * 8 + j]
+        b.append(tmp)
+    return bytes(b)
+
+class Int(bytes):
+    def __new__(self, f, i):
+        self.__f = f
+        if isinstance(i, int):
+            return super().__new__(self, struct.pack(self.__f, i))
+        else:
+            return super().__new__(self, i)
+    
+    def __int__(self):
+        return struct.unpack(self.__f, self)[0]
+
+class int8(Int):
+    def __new__(self, i):
+        return super().__new__(self, "b", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return int8(bits_to_bytes(bits, f="b"))
+
+class uint8(Int):
+    def __new__(self, i):
+        return super().__new__(self, "B", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return uint8(bits_to_bytes(bits, f="B"))
+
+class int16(Int):
+    def __new__(self, i):
+        return super().__new__(self, "h", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return int16(bits_to_bytes(bits, f="h"))
+
+class uint16(Int):
+    def __new__(self, i):
+        return super().__new__(self, "H", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return uint16(bits_to_bytes(bits, f="H"))
+
+class int32(Int):
+    def __new__(self, i):
+        return super().__new__(self, "l", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return int32(bits_to_bytes(bits, f="l"))
+
+class uint32(Int):
+    def __new__(self, i):
+        return super().__new__(self, "L", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return uint32(bits_to_bytes(bits, f="L"))
+
+class int64(Int):
+    def __new__(self, i):
+        return super().__new__(self, "q", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return int64(bits_to_bytes(bits, f="q"))
+
+class uint64(Int):
+    def __new__(self, i):
+        return super().__new__(self, "Q", i)
+    
+    @staticmethod
+    def from_bits(bits):
+        return uint64(bits_to_bytes(bits, f="Q"))
+
+class ssize_t(Int):
+    def __new__(self, i):
+        return super().__new__(self, "n", i)
+
+class size_t(Int):
+    def __new__(self, i):
+        return super().__new__(self, "N", i)
+
+class void_p(Int):
+    def __new__(self, i):
+        return super().__new__(self, "P", i)
