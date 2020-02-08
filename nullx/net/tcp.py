@@ -82,7 +82,7 @@ class TCPSocket:
                 self.lastByte = d[0]
                 return True
         test = Test()
-        return self.receive_while(test.test, buffer_size=2)
+        return self.receive_while(test.test, buffer_size=1)
 
     def send(self, data, encoding="utf-8"):
         if isinstance(data, str):
