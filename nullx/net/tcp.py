@@ -59,7 +59,7 @@ class TCPSocket:
         data = self.recv(buffer_size=buffer_size)
         collected = data
         while test(data):
-            data = self.recv()
+            data = self.recv(buffer_size=buffer_size)
             collected += data
         return collected
 
@@ -82,7 +82,7 @@ class TCPSocket:
                 self.lastByte = d[0]
                 return True
         test = Test()
-        return self.receive_while(test.test, buffer_size=1)
+        return self.receive_while(test.test, buffer_size=2)
 
     def send(self, data, encoding="utf-8"):
         if isinstance(data, str):
